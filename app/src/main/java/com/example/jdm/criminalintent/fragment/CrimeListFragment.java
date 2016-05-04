@@ -1,5 +1,6 @@
 package com.example.jdm.criminalintent.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,7 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.jdm.criminalintent.CrimeActivity;
 import com.example.jdm.criminalintent.R;
 import com.example.jdm.criminalintent.model.Crime;
 import com.example.jdm.criminalintent.model.CrimeLab;
@@ -43,7 +46,9 @@ public class CrimeListFragment extends Fragment {
         mCrimeRecyclerView.setAdapter(mAdapter);
     }
 
-
+    /**
+     * ViewHolder
+     */
     private class CrimeHolder extends RecyclerView.ViewHolder{
         private Crime mCrime;
 
@@ -56,6 +61,15 @@ public class CrimeListFragment extends Fragment {
             mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_crime_title_textview);
             mDateTextView = (TextView) itemView.findViewById(R.id.list_item_crime_date_textview);
             mSolvedCheckBox = (CheckBox) itemView.findViewById(R.id.list_item_crime_solved_checkbox);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getActivity(), "Click " + mCrime.getmId(), Toast.LENGTH_SHORT).show();
+                    Intent intent = CrimeActivity.newIntent(getActivity(),mCrime.getmId());
+                    startActivity(intent);
+                }
+            });
         }
 
         public void bindCrime(Crime crime){
@@ -64,8 +78,12 @@ public class CrimeListFragment extends Fragment {
             mDateTextView.setText(mCrime.getmDate().toString());
             mSolvedCheckBox.setChecked(mCrime.ismSolved());
         }
+
     }
 
+    /**
+     * RecyclerView.Adapter
+     */
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder>{
 
         private List<Crime> mCrimes;
