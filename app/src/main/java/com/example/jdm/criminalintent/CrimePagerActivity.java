@@ -10,7 +10,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.example.jdm.criminalintent.fragment.CrimeFragment;
 import com.example.jdm.criminalintent.model.Crime;
@@ -25,6 +27,7 @@ import java.util.UUID;
 public class CrimePagerActivity extends AppCompatActivity {
 
     private static final String EXTRA_CRIME_ID = "com.criminalintent.crime_id";
+    private static final String TAG = "CrimePagerActivity";
 
     public static Intent newIntent(Context packageContext, UUID crimeId){
         Intent intent = new Intent(packageContext,CrimePagerActivity.class);
@@ -40,7 +43,6 @@ public class CrimePagerActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_crime_pager);
-
 
 
         UUID crimeId = (UUID) getIntent().getSerializableExtra(EXTRA_CRIME_ID);
@@ -59,6 +61,28 @@ public class CrimePagerActivity extends AppCompatActivity {
             @Override
             public int getCount() {
                 return mCrimes.size();
+            }
+        });
+
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                Crime crime = mCrimes.get(position);
+                Log.d(TAG,"action bar =" + getSupportActionBar());
+                if (getSupportActionBar() != null){
+                    getSupportActionBar().setTitle(crime.getmTitle());
+                }
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
             }
         });
 
