@@ -1,6 +1,12 @@
 package com.example.jdm.criminalintent.model;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.example.jdm.criminalintent.db.CrimeBaseHelper;
+import com.example.jdm.criminalintent.db.CrimeCursorWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +18,8 @@ import java.util.UUID;
 public class CrimeLab {
     private static CrimeLab sCrimeLab;
 
-    private List<Crime> mCrimes;
+    private Context mContext;
+    private SQLiteDatabase mDatabase;
 
     public static CrimeLab get(Context context){
         if (sCrimeLab == null){
@@ -22,35 +29,98 @@ public class CrimeLab {
     }
 
     private CrimeLab(Context context){
-        mCrimes = new ArrayList<>();
-//        for (int i = 0 ; i< 100; i++){
-//            Crime crime = new Crime();
-//            crime.setmTitle("Crime #" + i);
-//            crime.setmSolved(i % 2 == 0);
-//            mCrimes.add(crime);
-//        }
-
+        mContext = context.getApplicationContext();
+        mDatabase = new CrimeBaseHelper(mContext).getWritableDatabase();
     }
 
+
+    private static ContentValues getContentValues(Crime crime){
+        ContentValues values = new ContentValues();
+        values.put(Crime.CrimeTable.Cols.UUID, crime.getmId().toString());
+        values.put(Crime.CrimeTable.Cols.TITLE, crime.getmTitle());
+        values.put(Crime.CrimeTable.Cols.DATE, crime.getmDate().getTime());
+        values.put(Crime.CrimeTable.Cols.SOLVED, crime.ismSolved() ? 1:0);
+        return values;
+    }
+
+    /**
+     * 增加Crime
+     * @param c
+     */
     public void addCrime(Crime c){
-        mCrimes.add(c);
+        ContentValues values = getContentValues(c);
+        mDatabase.insert(Crime.CrimeTable.NAME,null,values);
     }
 
+    /**
+     * 更新
+     * @param c
+     */
+    public void updateCrime(Crime c){
+        String uuidString = c.getmId().toString();
+        ContentValues values = getContentValues(c);
+        mDatabase.update(Crime.CrimeTable.NAME, values, Crime.CrimeTable.Cols.UUID + " = ?",new String[] {uuidString});
+    }
+
+
+    private CrimeCursorWrapper queryCrimesWrapper(String whereCaluse, String [] whereArgs){
+        Cursor cursor = mDatabase.query(Crime.CrimeTable.NAME,
+                null,
+                whereCaluse,
+                whereArgs,
+                null,
+                null,
+                null);
+        return new CrimeCursorWrapper(cursor);
+    }
+
+    /**
+     * 查询Crimes
+     * @return
+     */
     public List<Crime> getCrimes() {
-        return mCrimes;
-    }
-
-    public void setmCrimes(List<Crime> mCrimes) {
-        this.mCrimes = mCrimes;
-    }
-
-    public Crime getCrime(UUID id){
-        for (Crime crime: mCrimes
-             ) {
-            if (crime.getmId().equals(id)){
-                return  crime;
+        List<Crime> crimes = new ArrayList<>();
+        CrimeCursorWrapper cursor = queryCrimesWrapper(null,null);
+        try{
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()){
+                crimes.add(cursor.getCrime());
+                cursor.moveToNext();
             }
+        }finally {
+            cursor.close();
         }
-        return null;
+        return crimes;
     }
+
+    /**
+     * 查询指定id的Crime
+     * @param id
+     * @return
+     */
+    public Crime getCrime(UUID id){
+        CrimeCursorWrapper cursor = queryCrimesWrapper(Crime.CrimeTable.Cols.UUID + " = ?" ,new String[]{id.toString()});
+        try{
+            if (cursor.getCount() == 0){
+                return null;
+            }
+            cursor.moveToFirst();
+            return cursor.getCrime();
+        }finally {
+            cursor.close();
+        }
+    }
+
+    private Cursor queryCrimes(String whereCaluse,String [] whereArgs){
+        Cursor cursor = mDatabase.query(Crime.CrimeTable.NAME,
+                null,
+                whereCaluse,
+                whereArgs,
+                null,
+                null,
+                null);
+        return cursor;
+    }
+
+
 }

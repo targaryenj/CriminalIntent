@@ -17,6 +17,25 @@ public class Crime {
         this.mDate = new Date();
     }
 
+    public Crime(String uuidString, String title, long date, int isSolved) {
+        this.mId = UUID.fromString(uuidString);
+        this.mTitle = title;
+        this.mDate = new Date(date);
+        this.mSolved = (isSolved != 0);
+    }
+
+    public static final class CrimeTable {
+        public static final String NAME = "crimes";
+
+        public static final class Cols{
+            public static final String UUID = "uuid";
+            public static final String TITLE = "title";
+            public static final String DATE = "date";
+            public static final String SOLVED = "solved";
+        }
+    }
+
+
     public UUID getmId() {
         return mId;
     }

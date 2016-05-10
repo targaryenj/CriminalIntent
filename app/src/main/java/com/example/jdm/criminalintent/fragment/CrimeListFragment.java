@@ -132,7 +132,7 @@ public class CrimeListFragment extends Fragment {
         }
 
         //TODO 中文不支持Other，所以永远返回Other
-        //String subtitle = getResources().getQuantityString(R.plurals.subtitle_plural,crimeCount,crimeCount);
+        String subtitleq = getResources().getQuantityString(R.plurals.subtitle_plural,crimeCount,crimeCount);
         if (!mSubtitleVisible){
             subtitle = null;
         }
@@ -149,6 +149,7 @@ public class CrimeListFragment extends Fragment {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
         }else {
+            mAdapter.setmCrimes(crimes);
             mAdapter.notifyDataSetChanged();
         }
         updateSubtitle();
@@ -226,6 +227,14 @@ public class CrimeListFragment extends Fragment {
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder>{
 
         private List<Crime> mCrimes;
+
+        public List<Crime> getmCrimes() {
+            return mCrimes;
+        }
+
+        public void setmCrimes(List<Crime> mCrimes) {
+            this.mCrimes = mCrimes;
+        }
 
         public CrimeAdapter(List<Crime> mCrimes) {
             this.mCrimes = mCrimes;
