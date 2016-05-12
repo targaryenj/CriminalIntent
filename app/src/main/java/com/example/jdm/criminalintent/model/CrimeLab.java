@@ -4,10 +4,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 
 import com.example.jdm.criminalintent.db.CrimeBaseHelper;
 import com.example.jdm.criminalintent.db.CrimeCursorWrapper;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -40,6 +42,7 @@ public class CrimeLab {
         values.put(Crime.CrimeTable.Cols.TITLE, crime.getmTitle());
         values.put(Crime.CrimeTable.Cols.DATE, crime.getmDate().getTime());
         values.put(Crime.CrimeTable.Cols.SOLVED, crime.ismSolved() ? 1:0);
+        values.put(Crime.CrimeTable.Cols.SUSPECT,crime.getmSuspect());
         return values;
     }
 
@@ -122,5 +125,13 @@ public class CrimeLab {
         return cursor;
     }
 
+
+    public File getPhotoFile(Crime crime){
+        File externalFilesDir = mContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        if (externalFilesDir == null){
+            return null;
+        }
+        return new File(externalFilesDir,crime.getPhotoFilename());
+    }
 
 }
