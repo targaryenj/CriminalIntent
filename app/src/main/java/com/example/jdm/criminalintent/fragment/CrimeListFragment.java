@@ -1,5 +1,6 @@
 package com.example.jdm.criminalintent.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -39,6 +40,25 @@ public class CrimeListFragment extends Fragment {
 
     private static final String TAG = "CrimeListFragment";
     private static final int REQUEST_CRIME = 1;
+
+    // 17
+    private Callbacks mCallbacks;
+
+    public interface Callbacks{
+        void onCrimeSelected(Crime crime);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mCallbacks = (Callbacks) activity;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
+    }
 
     @Nullable
     @Override
@@ -103,8 +123,11 @@ public class CrimeListFragment extends Fragment {
             case R.id.menu_item_new_crime:
                 Crime crime = new Crime();
                 CrimeLab.get(getActivity()).addCrime(crime);
-                Intent intent = CrimePagerActivity.newIntent(getActivity(),crime.getmId());
-                startActivity(intent);
+//                Intent intent = CrimePagerActivity.newIntent(getActivity(),crime.getmId());
+//                startActivity(intent);
+                updateUI();
+                mCallbacks.onCrimeSelected(crime);
+
                 return true;
             case R.id.menu_item_show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
@@ -141,7 +164,7 @@ public class CrimeListFragment extends Fragment {
         activity.getSupportActionBar().setSubtitle(subtitle);
     }
 
-    private void updateUI() {
+    public void updateUI() {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
@@ -206,8 +229,11 @@ public class CrimeListFragment extends Fragment {
                     startActivityForResult(intent,REQUEST_CRIME);*/
 
                     // 11.ViewPager
-                    Intent intent = CrimePagerActivity.newIntent(getActivity(),mCrime.getmId());
-                    startActivity(intent);
+//                    Intent intent = CrimePagerActivity.newIntent(getActivity(),mCrime.getmId());
+//                    startActivity(intent);
+
+                    // 17
+                    mCallbacks.onCrimeSelected(mCrime);
                 }
             });
         }
